@@ -9,16 +9,17 @@ require "open-uri"
 require "json"
 
 puts "Destroying all ingredients"
-Ingredient.destroy_all
+Ingredient.destroy_all if Rails.env.development? # what is that?
 
+puts "Destroy all cocktails"
+Cocktail.destroy_all if Rails.env.development? # what is that?
+
+puts "Create ingredients"
 url = "https://www.thecocktaildb.com/api/json/v1/1/list.php?i=list"
-ingredients_serialized = open(url).read
-ingredient = JSON.parse(ingredients_serialized)
-drinks_ingredient = ingredient["drinks"]
-
-drinks_ingredient.each do |ingredient|
-  Ingredient.create(name: ingredient["strIngredient1"])
-  puts "Created #{ingredient["strIngredient1"]}"
+ingredients = JSON.parse(open(url).read)
+ingredients["drinks"].each do |ingredient|
+  i = Ingredient.create(name: ingredient["strIngredient1"])
+  puts "Created #{i.name}"
 end
 
 puts "Created #{Ingredient.count} ingredients"
